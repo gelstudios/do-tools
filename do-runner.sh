@@ -11,7 +11,7 @@ REGION=1
 if [[ -n $FAILMAIL ]]; then
     :
 else
-    FAILMAIL='user@host.tld'
+    FAILMAIL="$USER@localhost"
 fi;
 
 ######
@@ -21,9 +21,9 @@ source do.sh import
 SSHID=`getid $KEYNAME \`getkeys\``
 IMGID=`getid hnbot \`getimages\``
 
-echo `date`
 echo
-echo "creating droplet $DROPNAME"
+echo `date`
+echo "creating droplet: $DROPNAME"
 create $DROPNAME $IMGID $SSHID $SIZE $REGION
 
 echo
@@ -31,6 +31,7 @@ echo "getting droplet id for $DROPNAME"
 DROPID=`getid $DROPNAME \`getdrops\``
 
 echo "waiting for droplet $DROPNAME ($DROPID) to provision."
+dd=0
 while true; do
 	sleep 10
 	STATUS=`status $DROPID`
@@ -41,8 +42,11 @@ while true; do
 		DROPIP=`getprop ip_address $DROPIP`
 		echo "ip: $DROPIP"
 		break
-	else
+	elif [[ $dd -le 30 ]]; then
 		echo -n "."
+		(( dd++ ))
+	else
+		echo "WARNING: possible provisioning failure"
 	fi
 done;
 
@@ -52,6 +56,7 @@ while true; do
 	STATUS=`status $DROPID`
 	STATUS=`getprop status $STATUS`
 	if [[ $STATUS =~ "off" ]]; then
+		echo
 		echo "destroying $DROPNAME"
 		destroy $DROPID
 		break
@@ -72,8 +77,10 @@ while true; do
 		echo -n "."
 		(( dd++ ))
 	else
-		echo "possible runaway, sending alert email"
+		echo "WARNING: possible runaway, sending alert email"
 		echo "DigitalOcean droplet $DROPNAME ($DROPID) $DROPIP failed to stop" | mail -s "FAILURE" "$FAILMAIL"
 		break
 	fi
 done;
+echo "------"
+#
