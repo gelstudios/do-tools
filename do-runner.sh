@@ -1,5 +1,6 @@
 #!/bin/bash
 #sleepy giant job runner
+#requires mail
 ######
 
 KEYNAME=threepio
@@ -18,8 +19,11 @@ fi;
 
 source do.sh import
 
-SSHID=`getid $KEYNAME \`getkeys\``
-IMGID=`getid hnbot \`getimages\``
+SSHID=`getkeys`
+SSHID=`getid $KEYNAME $SSHID`
+
+IMGID=`getimages`
+IMGID=`getid $IMGNAME $IMGID`
 
 echo
 echo `date`
@@ -27,18 +31,19 @@ echo "creating droplet: $DROPNAME"
 create $DROPNAME $IMGID $SSHID $SIZE $REGION
 
 echo
-echo "getting droplet id for $DROPNAME"
-DROPID=`getid $DROPNAME \`getdrops\``
+echo "getting droplet id for: $DROPNAME"
+DROPID=`getdrops`
+DROPID=`getid $DROPNAME $DROPID`
 
-echo "waiting for droplet $DROPNAME ($DROPID) to provision."
+echo "waiting for droplet: $DROPNAME ($DROPID) to provision."
 dd=0
 while true; do
 	sleep 10
-	STATUS=`status $DROPID`
+	STATUS=`getstatus $DROPID`
 	STATUS=`getprop status $STATUS`
 	if [[ $STATUS =~ "new" ]]; then
-		echo "getting droplet ip for $DROPNAME"
-		DROPIP=`status $DROPID`
+		echo "getting droplet ip for: $DROPNAME"
+		DROPIP=`getstatus $DROPID`
 		DROPIP=`getprop ip_address $DROPIP`
 		echo "ip: $DROPIP"
 		break
@@ -53,7 +58,7 @@ done;
 echo "waiting for droplet $DROPNAME ($DROPID) to shut down."
 while true; do
 	sleep 10
-	STATUS=`status $DROPID`
+	STATUS=`getstatus $DROPID`
 	STATUS=`getprop status $STATUS`
 	if [[ $STATUS =~ "off" ]]; then
 		echo
@@ -69,7 +74,7 @@ echo "checking for droplet $DROPNAME ($DROPID)."
 dd=0
 while true; do
 	sleep 10
-	STATUS=`status $DROPID`
+	STATUS=`getstatus $DROPID`
 	if [[ $STATUS =~ "ERROR" || $STATUS =~ "archive" ]]; then
 		echo "confirmed destroyed"
 		break
