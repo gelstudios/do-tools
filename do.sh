@@ -3,7 +3,7 @@
 
 config=do.conf
 
-load_config(){
+function load_config(){
 if [[ -n $YOUR_CLIENT_ID && -n $YOUR_API_KEY ]]; then
     :
 elif [[ -a "$config" ]]; then
@@ -21,11 +21,11 @@ load_config
 URL='https://api.digitalocean.com'
 AUTH='client_id='$YOUR_CLIENT_ID'&api_key='$YOUR_API_KEY
 
-getdrops(){
+function getdrops(){
 	curl -s $URL'/droplets/?'$AUTH
 }
 
-getimages(){
+function getimages(){
 	if [[ $1 == global ]] ;then
 		filter=global #DO provided images
 	else
@@ -34,55 +34,55 @@ getimages(){
 	curl -s $URL'/images/?'$AUTH'&filter='$filter
 }
 
-getkeys(){
+function getkeys(){
 	curl -s $URL'/ssh_keys/?'$AUTH
 }
 
-getsizes(){
+function getsizes(){
 	curl -s $URL'/sizes/?'$AUTH
 }
 
-getregions(){
+function getregions(){
 	curl -s $URL'/regions/?'$AUTH
 }
 
-showkey(){
+function showkey(){
 	chkid $1
 	SSH_KEY_ID=$1
 	curl -s $URL'/ssh_keys/'$SSH_KEY_ID'/?'$AUTH
 }
 
-status(){
+function getstatus(){
 	chkid $1
 	DROPLET_ID=$1
 	curl -s $URL'/droplets/'$DROPLET_ID'/?'$AUTH
 }
 
-start(){
+function start(){
 	chkid $1
 	DROPLET_ID=$1
 	curl -s $URL'/droplets/'$DROPLET_ID'/power_on/?'$AUTH
 }
 
-stop(){
+function stop(){
 	chkid $1
 	DROPLET_ID=$1
 	curl -s $URL'/droplets/'$DROPLET_ID'/shutdown/?'$AUTH
 }
 
-kill(){
+function kill(){
 	chkid $1
 	DROPLET_ID=$1
 	curl -s $URL'/droplets/'$DROPLET_ID'/power_off/?'$AUTH
 }
 
-destroy(){
+function destroy(){
 	chkid $1
 	DROPLET_ID=$1
 	curl -s $URL'/droplets/'$DROPLET_ID'/destroy/?'$AUTH
 }
 
-create(){
+function create(){
 	chkid $1; chkid $2;	chkid $3; chkid $4; chkid $5;
 	DROPLET_NAME=$1
 	IMAGE_ID=$2
@@ -92,14 +92,14 @@ create(){
 	curl -s $URL'/droplets/new?name='$DROPLET_NAME'&size_id='$SIZE_ID'&image_id='$IMAGE_ID'&region_id='$REGION_ID'&'$AUTH'&ssh_key_ids='$SSH_KEY_ID1
 }
 
-chkid(){
+function chkid(){
 if [[ -z $1 ]]; then
 	echo "an ID or NAME is required"
 	exit 1
 fi
 }
 
-getid(){
+function getid(){
 NAME=$1
 INPUT=$2
 REGEX='"id":([0-9]+),"name":"'"$NAME"'"'
@@ -111,7 +111,7 @@ else
 fi
 }
 
-getprop(){
+function getprop(){
 KEY=$1
 INPUT=$2
 REGEX='^.+"OK".+"'$KEY'":([a-zA-Z0-9".]+)'
@@ -124,8 +124,11 @@ fi
 }
 
 case "$1" in
-	getdrops|getimages|getkeys|getregions|getsizes|showkey|status|start|stop|kill|create|destroy )
+	getdrops|getimages|getkeys|getregions|getsizes|showkey|start|stop|kill|create|destroy )
 	"$@"
+	;;
+	status )
+	getstatus $2
 	;;
 	import )
 	:
