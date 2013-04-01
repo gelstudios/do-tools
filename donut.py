@@ -64,6 +64,14 @@ def create(name, size_id, image_id, region_id, ssh_key_id=None):
 	req = requests.get(url, params=payload)
 	return req.json()
 
+#may have to make all droplet based tasks same function?
+def destroy(DROPLET_ID):
+	"""droplet_id Required, Numeric, this is the id of the droplet you would like to destroy"""
+	url = BASEURL + 'droplets/' + str(DROPLET_ID) + '/destroy/'
+	payload = AUTH
+	req = requests.get(url, params=payload)
+	return req.json()
+
 def main():
 	args=sys.argv
 	commands=['getdrops','getimages','getkeys',\
