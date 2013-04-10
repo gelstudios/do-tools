@@ -72,6 +72,15 @@ def destroy(DROPLET_ID):
 	req = requests.get(url, params=payload)
 	return req.json()
 
+def getimages(filter=None):
+	"""filter may be "global", "my_images", or None (the default)"""
+	url = BASEURL + 'images/'
+	payload = AUTH
+	if filter=='global' or filter=="my_images":
+		payload['filter']=filter
+	req = requests.get(url, params=payload)
+	return req.json()
+
 def main():
 	args=sys.argv
 	commands=['getdrops','getimages','getkeys',\
@@ -95,5 +104,6 @@ def main():
 
 if __name__ == '__main__':
 	main()
+
 
 #donut.create(size='512MB', name='mynewhost', ssh='sshkeyname')
