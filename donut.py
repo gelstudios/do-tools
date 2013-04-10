@@ -40,7 +40,7 @@ def getkeys():
 	return req.json()
 
 def status(id):
-	"""returns a json string with status for a given ID"""
+	"""id, Required, Numeric, returns a json string with status for a given ID"""
 	url = BASEURL + 'droplets/' + str(id)
 	payload = AUTH
 	req = requests.get(url, params=payload)
@@ -73,7 +73,7 @@ def destroy(DROPLET_ID):
 	return req.json()
 
 def getimages(filter=None):
-	"""filter may be "global", "my_images", or None (the default)"""
+	"""filter Optional, String, may be "global", "my_images", or None (the default)"""
 	url = BASEURL + 'images/'
 	payload = AUTH
 	if filter=='global' or filter=="my_images":
